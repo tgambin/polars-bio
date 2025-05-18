@@ -31,7 +31,10 @@ use crate::option::{
 use crate::scan::{maybe_register_table, register_frame, register_table};
 use crate::streaming::RangeOperationScan;
 use crate::utils::convert_arrow_rb_schema_to_polars_df_schema;
-use crate::qc::read_length_distribution::read_length_distribution as read_length_distribution_qc;
+use crate::qc::read_length_distribution::{
+    read_length_distribution as read_length_distribution_qc,
+    read_length_distribution_from_df,
+};
 
 const LEFT_TABLE: &str = "s1";
 const RIGHT_TABLE: &str = "s2";
@@ -416,6 +419,17 @@ pub fn read_length_distribution(py: Python, fastq_path: &str) -> PyResult<PyData
     })
 }
 
+#[pyfunction]
+pub fn read_length_distribution_native(py: Python, py_ctx: &PyBioSessionContext, table_name: &str) -> PyResult<PyDataFrame> {
+    py.allow_threads(|| {
+        let rt = Runtime::new().unwrap();
+        let ctx = &py_ctx.ctx;
+        let df = rt.block_on(read_length_distribution_from_df(ctx, table_name))
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(format!("{}", e)))?;
+        Ok(PyDataFrame::new(df))
+    })
+}
+
 #[pymodule]
 fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     pyo3_log::init();
@@ -431,6 +445,7 @@ fn polars_bio(_py: Python, m: &Bound<PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_register_view, m)?)?;
     m.add_function(wrap_pyfunction!(py_from_polars, m)?)?;
     m.add_function(wrap_pyfunction!(read_length_distribution, m)?)?;
+    m.add_function(wrap_pyfunction!(read_length_distribution_native, m)?)?;
     m.add_class::<PyBioSessionContext>()?;
     m.add_class::<FilterOp>()?;
     m.add_class::<RangeOp>()?;

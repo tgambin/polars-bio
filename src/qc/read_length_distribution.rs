@@ -1,6 +1,5 @@
 // polars-bio/src/qc/read_length_distribution.rs
 
-use polars::prelude::*;
 use std::collections::HashMap;
 use needletail::parse_fastx_file;
 use std::path::Path;
@@ -8,7 +7,8 @@ use arrow::array::{UInt32Array, UInt64Array};
 use arrow::record_batch::RecordBatch;
 use std::sync::Arc;
 use rayon::prelude::*;
-use needletail::FastxReader;
+use datafusion::prelude::SessionContext;
+use exon::ExonSession;
 
 /// Helper: process a chunk of read lengths and return a HashMap of length -> count
 fn process_lengths(lengths: &[u32]) -> HashMap<u32, u64> {
@@ -20,7 +20,6 @@ fn process_lengths(lengths: &[u32]) -> HashMap<u32, u64> {
 }
 
 /// Compute read length distribution from a FASTQ file.
-use datafusion::prelude::*;
 
 pub async fn read_length_distribution(
     ctx: &SessionContext,
@@ -74,3 +73,27 @@ pub async fn read_length_distribution(
 }
 
 // TODO: Register as DataFusion UDF and add Python bindings.
+
+/// Process a LazyFrame containing FASTQ data and compute read length distribution
+pub async fn read_length_distribution_from_df(
+    ctx: &ExonSession, 
+    df_name: &str,
+) -> datafusion::error::Result<datafusion::dataframe::DataFrame> {
+    // Create a SQL query to compute read length distribution
+    // This is faster than processing row by row in Rust because it leverages DataFusion's query engine
+    let sql = format!(
+        "SELECT 
+            LENGTH(sequence) as length, 
+            COUNT(*) as count 
+         FROM {} 
+         GROUP BY length 
+         ORDER BY length",
+        df_name
+    );
+    
+    // Execute the query
+    let result = ctx.sql(&sql).await?;
+    
+    // Return the result
+    Ok(result)
+}
