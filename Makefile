@@ -1,17 +1,22 @@
-
 SHELL=/bin/bash
+
+clean: ## Clean build artifacts
+	cargo clean
+	rm -rf .venv
 
 venv:  ## Set up virtual environment
 	python3 -m venv .venv
-	poetry lock --no-update
+	poetry lock
 	poetry install
 
 install: venv
 	unset CONDA_PREFIX && \
+	export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang && \
 	source .venv/bin/activate && maturin develop
 
 install-release: venv
 	unset CONDA_PREFIX && \
+	export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=clang && \
 	source .venv/bin/activate && maturin develop --release
 
 pre-commit: venv

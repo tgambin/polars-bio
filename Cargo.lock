@@ -1132,6 +1132,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "buf_redux"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b953a6887648bb07a535631f2bc00fbdb2a2216f135552cb3f534ed136b9c07f"
+dependencies = [
+ "memchr",
+ "safemem",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3930,6 +3940,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "needletail"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fb4c43ebd04b0e776119c8fc3bd4c28178619cd04e1f19f600a4ef0282fa3cc"
+dependencies = [
+ "buf_redux",
+ "bytecount",
+ "bzip2 0.4.4",
+ "flate2",
+ "memchr",
+ "xz2",
+]
+
+[[package]]
 name = "new_debug_unreachable"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5414,6 +5438,7 @@ dependencies = [
  "futures",
  "futures-util",
  "log",
+ "needletail",
  "polars",
  "polars-arrow",
  "polars-core",
@@ -5423,6 +5448,7 @@ dependencies = [
  "pyo3",
  "pyo3-log",
  "rand",
+ "rayon",
  "sequila-core",
  "tokio",
  "tracing",
@@ -6185,6 +6211,12 @@ checksum = "96b02de82ddbe1b636e6170c21be622223aea188ef2e139be0a5b219ec215323"
 dependencies = [
  "bytemuck",
 ]
+
+[[package]]
+name = "safemem"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef703b7cb59335eae2eb93ceb664c0eb7ea6bf567079d843e09420219668e072"
 
 [[package]]
 name = "salsa20"

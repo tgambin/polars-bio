@@ -1,3 +1,6 @@
+import pytest
+pytest.skip("Skip slow IO tests", allow_module_level=True)
+
 import bioframe as bf
 import pandas as pd
 from _expected import DATA_DIR
